@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOL 选人研究实验</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f4f6fb;color:#1a1a2e;min-height:100vh}
+.page{display:none;max-width:900px;margin:0 auto;padding:36px 20px 80px}
+.page.active{display:block}
+h1{font-size:22px;font-weight:700;margin-bottom:6px}
+h2{font-size:16px;font-weight:600;margin-bottom:12px}
+p{font-size:14px;line-height:1.85;color:#444;margin-bottom:10px}
+.card{background:#fff;border-radius:14px;padding:28px 32px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:11px 28px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:.18s}
+.btn-p{background:#3d5af1;color:#fff}.btn-p:hover{background:#2d4ae0}
+.btn-s{background:#e9ecef;color:#555}.btn-s:hover{background:#dde1e7}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.pw{max-width:900px;margin:0 auto;padding:20px 20px 0}
+.prog{height:5px;background:#e4e8f0;border-radius:3px}
+.pf{height:100%;background:#3d5af1;border-radius:3px;transition:width .4s}
+.slbl{font-size:12px;color:#999;text-align:right;max-width:900px;margin:5px auto 16px;padding-right:20px}
+.banner{border-radius:10px;padding:14px 18px;font-size:13.5px;font-weight:600;margin-bottom:16px;line-height:1.6}
+.b-sign{background:#fff8e1;border:1.5px solid #ffc107;color:#7a5400}
+.b-roi{background:#e8f5e9;border:1.5px solid #43a047;color:#1b5e20}
+.b-ai{background:#e3eafc;border:1.5px solid #3d5af1;color:#1a2a80;display:flex;align-items:flex-start;gap:10px}
+.ai-pulse{width:10px;height:10px;border-radius:50%;background:#3d5af1;flex-shrink:0;margin-top:3px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.kol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(242px,1fr));gap:13px}
+.kol-card{background:#fff;border-radius:11px;padding:15px 16px;border:2px solid #e4e8f0;cursor:pointer;transition:.15s;position:relative;user-select:none}
+.kol-card:hover:not(.kd){border-color:#3d5af1;box-shadow:0 3px 14px rgba(61,90,241,.13)}
+.kol-card.ks{border-color:#3d5af1;background:#f0f3fe}
+.kol-card.kd{opacity:.42;cursor:not-allowed}
+.knum{font-size:11px;color:#aaa;margin-bottom:3px;font-weight:500}
+.kpro{font-size:12.5px;color:#555;line-height:1.5;height:52px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;margin-bottom:9px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:0}
+.tag{font-size:11.5px;padding:3px 9px;border-radius:20px;font-weight:500}
+.th{background:#d1fae5;color:#065f46}.tm{background:#fef3c7;color:#78350f}.tl{background:#fee2e2;color:#7f1d1d}
+.tg{background:#f1f3f5;color:#495057}
+.chk{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:#3d5af1;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.sel-ct{font-size:14px;font-weight:600;color:#3d5af1;margin-bottom:14px}
+.divider{height:1px;background:#eee;margin:18px 0}
+.fe{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.muted{color:#999;font-size:13px}
+.rb{margin-bottom:20px}
+.rb label{font-size:13.5px;font-weight:600;display:block;margin-bottom:4px;color:#333}
+.rb .sub{font-size:12px;color:#888;margin-bottom:6px}
+.rb textarea{width:100%;border:1.5px solid #dde1e7;border-radius:8px;padding:10px 13px;font-size:13.5px;resize:vertical;min-height:68px;font-family:inherit;line-height:1.6}
+.rb textarea:focus{outline:none;border-color:#3d5af1}
+.rb textarea.err-field{border-color:#dc3545}
+.field-err{color:#dc3545;font-size:12px;margin-top:4px;display:none}
+.sq{margin-bottom:26px}
+.sq .qt{font-size:14px;font-weight:600;line-height:1.65;margin-bottom:10px}
+.lk{display:flex}
+.lk label{flex:1;text-align:center;cursor:pointer}
+.lk input[type=radio]{display:none}
+.lk .lb{display:block;padding:9px 2px;font-size:11.5px;border:1.5px solid #dde1e7;border-right:none;background:#fff;transition:.12s;white-space:pre-line;line-height:1.35}
+.lk label:first-child .lb{border-radius:7px 0 0 7px}
+.lk label:last-child .lb{border-radius:0 7px 7px 0;border-right:1.5px solid #dde1e7}
+.lk input:checked+.lb{background:#3d5af1;color:#fff;border-color:#3d5af1}
+.lk label:hover .lb{background:#eef1fd}
+.manip-check{margin-bottom:22px}
+.manip-check .qt{font-size:14px;font-weight:600;line-height:1.65;margin-bottom:10px}
+.mc-options{display:flex;flex-direction:column;gap:8px}
+.mc-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #dde1e7;border-radius:8px;cursor:pointer;font-size:13.5px;transition:.12s}
+.mc-opt:hover{border-color:#3d5af1;background:#f0f3fe}
+.mc-opt input{width:16px;height:16px;accent-color:#3d5af1}
+.done-wrap{max-width:480px;margin:80px auto;text-align:center}
+.done-code{font-size:48px;font-weight:700;color:#3d5af1;letter-spacing:4px;margin:20px 0;font-family:monospace}
+.ew{max-width:480px;margin:80px auto}
+.ci{width:200px;padding:11px 16px;font-size:18px;border:2px solid #dde1e7;border-radius:9px;text-align:center;letter-spacing:3px;display:block;margin:0 auto}
+.ci:focus{outline:none;border-color:#3d5af1}
+.errtxt{color:#dc3545;font-size:13px;margin-top:8px;text-align:center;display:none}
+.pb{background:#f0f4ff;border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:14px}
+.info-box{background:#f8f9ff;border:1.5px solid #c7d2fe;border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:13.5px;color:#3730a3}
+</style>
+</head>
+<body>
+
+<!-- P0: Entry -->
+<div id="p0" class="page active">
+  <div class="ew">
+    <div class="card">
+      <h1 style="margin-bottom:4px;">KOL 选人研究实验</h1>
+      <p class="muted" style="margin-bottom:20px;">感谢参与本次研究。请输入研究人员提供的分组码。</p>
+      <input id="ci" class="ci" type="text" maxlength="6" placeholder="G1 ~ G4" autocomplete="off">
+      <div id="cerr" class="errtxt">请输入有效分组码（G1、G2、G3 或 G4）</div>
+      <div class="fe" style="justify-content:center;margin-top:22px;">
+        <button class="btn btn-p" onclick="enterGroup()">开始实验 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- P1: Instructions -->
+<div id="p1" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:10%"></div></div></div>
+  <div class="slbl">第 1 步 / 共 5 步</div>
+  <div class="card">
+    <h1>任务说明</h1>
+    <p style="margin-top:12px;">本研究模拟真实 KOL 营销工作场景。您将扮演一名 <strong>KOL 经理</strong>，负责为品牌活动筛选合作红人。</p>
+    <p>请从包含 <strong>30 位候选 KOL</strong> 的库中，选出 <strong>5 位</strong>参与合作推广。整个任务限时 <strong>20 分钟</strong>。</p>
+    <p>每位 KOL 展示以下信息：<strong>个人简介、签约意愿（Signability）、近期互动表现（Recent Engagement Level）、粉丝数、视频数</strong>。</p>
+    <div class="divider"></div>
+    <h2>推广产品</h2>
+    <div class="pb">🛒 <strong>美国弹簧自动伸缩水管卷盘（白+灰）</strong><br><span style="font-size:13px;color:#666;">家用园艺自动收纳水管，免手动收卷、防缠绕，适合庭院浇水及洗车场景。</span></div>
+    <div class="divider"></div>
+    <h2>您的绩效指标（KPI）</h2>
+    <div id="kpi1"></div>
+    <div id="ai1"></div>
+    <div class="fe"><button class="btn btn-p" onclick="nav(2)">我已了解，开始选人 →</button></div>
+  </div>
+</div>
+
+<!-- P2: KOL Selection -->
+<div id="p2" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:35%"></div></div></div>
+  <div class="slbl">第 2 步 / 共 5 步 · 请选择 5 位 KOL</div>
+  <div id="kpi2" style="margin-bottom:8px;"></div>
+  <div id="ai2"></div>
+  <div class="sel-ct" id="sct">已选：0 / 5</div>
+  <div class="kol-grid" id="kg"></div>
+  <div class="fe"><button id="bn2" class="btn btn-p" disabled onclick="nav(3)">下一步：填写选择理由 →</button></div>
+</div>
+
+<!-- P3: Reasons -->
+<div id="p3" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:58%"></div></div></div>
+  <div class="slbl">第 3 步 / 共 5 步</div>
+  <div class="card">
+    <h1>选择理由</h1>
+    <p>请简要说明您选择每位 KOL 时主要参考了哪些信息，以及背后的考虑（必填，至少 5 个字）。</p>
+    <div class="divider"></div>
+    <div id="rc"></div>
+    <div class="fe">
+      <button class="btn btn-s" onclick="nav(2)">← 返回修改</button>
+      <button class="btn btn-p" onclick="goP4()">下一步：任务后问卷 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- P4: Manipulation Check + Survey -->
+<div id="p4" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:80%"></div></div></div>
+  <div class="slbl">第 4 步 / 共 5 步</div>
+  <div class="card">
+    <h1>任务后问卷</h1>
+    <p>以下题目询问您在<strong>刚才选人任务中</strong>的真实想法。本问卷完全匿名，结果不影响奖励，请如实作答。</p>
+    <div class="divider"></div>
+    <div id="mc-survey"></div>
+    <div class="fe"><button class="btn btn-p" onclick="submitAll()">提交 →</button></div>
+  </div>
+</div>
+
+<!-- P5: Done -->
+<div id="p5" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:100%"></div></div></div>
+  <div class="done-wrap">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">✅</div>
+      <h1>任务已完成</h1>
+      <p style="margin-top:12px;color:#555;">感谢您的参与！请将以下<strong>完成码</strong>截图，并交给研究人员。</p>
+      <div class="done-code" id="done-code">------</div>
+      <p class="muted">完成码用于确认您的参与记录，数据已自动提交。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const KD={"Group1": [{"id": 1, "profile": "✞ SAHM | Wife | Home + Mom Finds", "signability": "low", "engagement": "high", "followers": 13200, "videos": 1868, "is_signed": 1, "roi_score": 3.0}, {"id": 2, "profile": "Tools, Tech & Life | Explorer 🌊🌴 | Gearhead 🚗 | Maker🛠️", "signability": "low", "engagement": "high", "followers": 9078, "videos": 2149, "is_signed": 1, "roi_score": 105.2}, {"id": 3, "profile": "Love good quality & good pricing Mostly fashion & lifestyle here", "signability": "medium", "engagement": "high", "followers": 27300, "videos": 4552, "is_signed": 1, "roi_score": 92.2}, {"id": 4, "profile": "DIY garden queen | Affordable finds | Shop approved", "signability": "low", "engagement": "high", "followers": 10500, "videos": 1189, "is_signed": 1, "roi_score": 41.9}, {"id": 5, "profile": "Cool stuff for sale in showcase!", "signability": "low", "engagement": "medium", "followers": 64100, "videos": 3283, "is_signed": 1, "roi_score": 2.2}, {"id": 6, "profile": "No bio yet.", "signability": "low", "engagement": "high", "followers": 75000, "videos": 913, "is_signed": 1, "roi_score": 3.5}, {"id": 7, "profile": "hiiii 🧸🎀✨ wifey + mommy x2 lifestyle | beauty | home | hairstyles", "signability": "high", "engagement": "low", "followers": 37500, "videos": 745, "is_signed": 1, "roi_score": 0.0}, {"id": 8, "profile": "🇺🇲⚓Smooth seas don't make skilled sailors⚓🇺🇲", "signability": "high", "engagement": "low", "followers": 13100, "videos": 1449, "is_signed": 1, "roi_score": 0.0}, {"id": 9, "profile": "👑 !Jesus is King!👑 Husband to a beautiful wife Father of 3 Boys and a beautiful ", "signability": "high", "engagement": "medium", "followers": 16400, "videos": 560, "is_signed": 1, "roi_score": 0.0}, {"id": 10, "profile": "Travel • Mindset • Lifestyle Thewessicaway@gmail.com Talenture Agency", "signability": "medium", "engagement": "low", "followers": 213400, "videos": 733, "is_signed": 1, "roi_score": 0.0}, {"id": 11, "profile": "Girl mom x 4 | Sharing my favorite finds", "signability": "high", "engagement": "low", "followers": 27200, "videos": 506, "is_signed": 1, "roi_score": 0.0}, {"id": 12, "profile": "-", "signability": "high", "engagement": "low", "followers": 35100, "videos": 92, "is_signed": 1, "roi_score": 0.0}, {"id": 13, "profile": "Top 1% affiliate🏆 Shop Star Creator 🌟 HOUSTON TX📍", "signability": "low", "engagement": "high", "followers": 49800, "videos": 229, "is_signed": 0, "roi_score": 0.0}, {"id": 14, "profile": "LONG LIVE THE 2ND AMMENDMENT", "signability": "high", "engagement": "medium", "followers": 116500, "videos": 675, "is_signed": 0, "roi_score": 0.0}, {"id": 15, "profile": "Travel | Lifestyle | Mom | Budget friendly | Latina | Texan", "signability": "high", "engagement": "low", "followers": 85400, "videos": 596, "is_signed": 0, "roi_score": 0.0}, {"id": 16, "profile": "gana dinero afiliandote a los vendendores gana y aste millonaria unete!!!!", "signability": "medium", "engagement": "medium", "followers": 13100, "videos": 1406, "is_signed": 0, "roi_score": 0.0}, {"id": 17, "profile": "Passionate about everything BEAUTIFUL 💕💕", "signability": "medium", "engagement": "medium", "followers": 15000, "videos": 497, "is_signed": 0, "roi_score": 0.0}, {"id": 18, "profile": "✨ THE PARTYS HERE ✨ A DJ WHO LOVES TO SHOP 🤩✨", "signability": "medium", "engagement": "low", "followers": 7500000, "videos": 3025, "is_signed": 0, "roi_score": 0.0}, {"id": 19, "profile": "Single and staying that way. No time for drama, no space for baggage, no more pa", "signability": "low", "engagement": "medium", "followers": 280900, "videos": 190, "is_signed": 0, "roi_score": 0.0}, {"id": 20, "profile": "outfits, vlogs, whateva ✨ BIGOT-FREE ZONE ❌", "signability": "low", "engagement": "medium", "followers": 286200, "videos": 2089, "is_signed": 0, "roi_score": 0.0}, {"id": 21, "profile": "-", "signability": "low", "engagement": "low", "followers": 641000, "videos": 1005, "is_signed": 0, "roi_score": 0.0}, {"id": 22, "profile": "21 💗 LA / OC books and film🎬📚", "signability": "high", "engagement": "medium", "followers": 199000, "videos": 422, "is_signed": 0, "roi_score": 0.0}, {"id": 23, "profile": "Living life traveling with my pups❤️", "signability": "high", "engagement": "medium", "followers": 179700, "videos": 2501, "is_signed": 0, "roi_score": 0.0}, {"id": 24, "profile": "4287 Harrison Blvd Po Box 207 Ogden, UT 84403", "signability": "high", "engagement": "low", "followers": 51800, "videos": 5809, "is_signed": 0, "roi_score": 0.0}, {"id": 25, "profile": "Woodworker here to teach YOU", "signability": "medium", "engagement": "medium", "followers": 452500, "videos": 1286, "is_signed": 0, "roi_score": 0.0}, {"id": 26, "profile": "Yes Firearms Can Be Funny! Come Train With Us! Get 2nd Amendment Educated!", "signability": "medium", "engagement": "medium", "followers": 77100, "videos": 1749, "is_signed": 0, "roi_score": 0.0}, {"id": 27, "profile": "No bio yet.", "signability": "medium", "engagement": "low", "followers": 45, "videos": 4, "is_signed": 0, "roi_score": 0.0}, {"id": 28, "profile": "No bio yet.", "signability": "low", "engagement": "medium", "followers": 0, "videos": 0, "is_signed": 0, "roi_score": 0.0}, {"id": 29, "profile": "All your Trading Card collectable needs.", "signability": "low", "engagement": "medium", "followers": 234500, "videos": 385, "is_signed": 0, "roi_score": 0.0}, {"id": 30, "profile": "-", "signability": "low", "engagement": "low", "followers": 46100, "videos": 1535, "is_signed": 0, "roi_score": 0.0}], "Group2": [{"id": 1, "profile": "DUCTOS de Aire Acondicionado 😉", "signability": "low", "engagement": "high", "followers": 55100, "videos": 3007, "is_signed": 1, "roi_score": 131.7}, {"id": 2, "profile": "you can contact me las vegas 24/7", "signability": "low", "engagement": "high", "followers": 17600, "videos": 3062, "is_signed": 1, "roi_score": 122.1}, {"id": 3, "profile": "Just documenting our life", "signability": "medium", "engagement": "high", "followers": 273100, "videos": 819, "is_signed": 1, "roi_score": 3.5}, {"id": 4, "profile": "Living my best life. merchandise in the link", "signability": "low", "engagement": "high", "followers": 185600, "videos": 4531, "is_signed": 1, "roi_score": 8.4}, {"id": 5, "profile": "TT Shop QUEEN 🫅 Love&Light🫶🏼 Brutally honest reviews ⭐️ Helping you avoid mid pr", "signability": "low", "engagement": "medium", "followers": 28400, "videos": 2131, "is_signed": 1, "roi_score": 65.2}, {"id": 6, "profile": "Lifestyle, Beauty,Fashion ⬇️Let's Collaborate ⬇️ ATL", "signability": "low", "engagement": "high", "followers": 17200, "videos": 2889, "is_signed": 1, "roi_score": 50.7}, {"id": 7, "profile": "lifestyle 🎀 | home 🌿 | cleaning 🫧 San Diego 🌴 SHOP⬇️", "signability": "high", "engagement": "low", "followers": 112700, "videos": 572, "is_signed": 1, "roi_score": 0.0}, {"id": 8, "profile": "Motherhood | Routines | Cleaning/Organizing | DIY", "signability": "high", "engagement": "low", "followers": 87400, "videos": 523, "is_signed": 1, "roi_score": 0.0}, {"id": 9, "profile": "Iowa dad of 2 boys outdoors Business inquiries", "signability": "high", "engagement": "medium", "followers": 7867, "videos": 1531, "is_signed": 1, "roi_score": 0.0}, {"id": 10, "profile": "Wife/mom/farm/cleaning/homestead Realistic lifestyle 🫶🏼👩🏼‍🌾", "signability": "medium", "engagement": "low", "followers": 36300, "videos": 4546, "is_signed": 1, "roi_score": 0.0}, {"id": 11, "profile": "-", "signability": "high", "engagement": "low", "followers": 236300, "videos": 3897, "is_signed": 1, "roi_score": 0.0}, {"id": 12, "profile": "Email to COLLAB!", "signability": "high", "engagement": "low", "followers": 169700, "videos": 3583, "is_signed": 1, "roi_score": 0.0}, {"id": 13, "profile": "Keep a positive attitude and life will always be happy", "signability": "low", "engagement": "high", "followers": 57300, "videos": 1938, "is_signed": 0, "roi_score": 0.0}, {"id": 14, "profile": "Lifestyle, Fitness, & Mommy Content FTM 👶🏻 NJ/SC 📍", "signability": "high", "engagement": "medium", "followers": 4982, "videos": 264, "is_signed": 0, "roi_score": 0.0}, {"id": 15, "profile": "Grampa's Gardenware Co. The Original Weeder Timeless Tools, Trusted Traditio", "signability": "high", "engagement": "low", "followers": 44600, "videos": 520, "is_signed": 0, "roi_score": 0.0}, {"id": 16, "profile": "If you're here, may as well FOLLOW 😊 Cars. Construction. Real Estate. …", "signability": "medium", "engagement": "medium", "followers": 14900, "videos": 2376, "is_signed": 0, "roi_score": 0.0}, {"id": 17, "profile": "Lil miss no Niche #FreeWill PAID COLLABS ONLY‼️", "signability": "medium", "engagement": "medium", "followers": 89000, "videos": 1987, "is_signed": 0, "roi_score": 0.0}, {"id": 18, "profile": "Inquires:(----email) Helping you find the best TikTok deals👇", "signability": "medium", "engagement": "low", "followers": 13100, "videos": 1956, "is_signed": 0, "roi_score": 0.0}, {"id": 19, "profile": "Kitchen, home & lifestyle must-haves 🍴 Affordable finds that make life easier! T", "signability": "low", "engagement": "medium", "followers": 20300, "videos": 2012, "is_signed": 0, "roi_score": 0.0}, {"id": 20, "profile": "We love sharing Great British Gardens. 🌺 No.1 Online guide to UK #gardens", "signability": "low", "engagement": "medium", "followers": 7500000, "videos": 3025, "is_signed": 0, "roi_score": 0.0}, {"id": 21, "profile": "univ of alabama all my fav tt clothing shop finds!!", "signability": "low", "engagement": "low", "followers": 37800, "videos": 316, "is_signed": 0, "roi_score": 0.0}, {"id": 22, "profile": "25 | Wife | AL Home | Beauty Shop my finds⬇️", "signability": "high", "engagement": "medium", "followers": 10800, "videos": 1366, "is_signed": 0, "roi_score": 0.0}, {"id": 23, "profile": "Message for a free quote 🍃", "signability": "high", "engagement": "medium", "followers": 641000, "videos": 1005, "is_signed": 0, "roi_score": 0.0}, {"id": 24, "profile": "Gardening+Home Decor+Lifestyle 🎀B.C. Survivor🎀 ", "signability": "high", "engagement": "low", "followers": 81700, "videos": 629, "is_signed": 0, "roi_score": 0.0}, {"id": 25, "profile": "Furniture Flips + DIY", "signability": "medium", "engagement": "medium", "followers": 53300, "videos": 4255, "is_signed": 0, "roi_score": 0.0}, {"id": 26, "profile": "TT SHOP FINDS/TIPS 🧸☁️🦖🎧🎀 Wifey+Mommy", "signability": "medium", "engagement": "medium", "followers": 21700, "videos": 1374, "is_signed": 0, "roi_score": 0.0}, {"id": 27, "profile": "-", "signability": "medium", "engagement": "low", "followers": 210900, "videos": 695, "is_signed": 0, "roi_score": 0.0}, {"id": 28, "profile": "🔱Watertown Tattoos 📍9861 w sample rd Coral Springs fl 33065", "signability": "low", "engagement": "medium", "followers": 310200, "videos": 1294, "is_signed": 0, "roi_score": 0.0}, {"id": 29, "profile": "airbnb host | home projects | diy 📍wilmington nc", "signability": "low", "engagement": "medium", "followers": 268600, "videos": 751, "is_signed": 0, "roi_score": 0.0}, {"id": 30, "profile": "☀️", "signability": "low", "engagement": "low", "followers": 12200, "videos": 1755, "is_signed": 0, "roi_score": 0.0}], "Group3": [{"id": 1, "profile": "🌽 39 married Indiana 🌽 🇺🇸Help me get to 20K diesel mechanic 🇺🇸", "signability": "low", "engagement": "high", "followers": 17300, "videos": 1670, "is_signed": 1, "roi_score": 1.3}, {"id": 2, "profile": "💙IVF/Boy Mama, Wife & Therapist 💭 Live Host Tues 6pEST & pop-ups 🪷 Go Zen", "signability": "low", "engagement": "high", "followers": 14700, "videos": 833, "is_signed": 1, "roi_score": 574.7}, {"id": 3, "profile": "Product Reviews -💡 Trending Topics.", "signability": "medium", "engagement": "high", "followers": 165900, "videos": 2000, "is_signed": 1, "roi_score": 8.0}, {"id": 4, "profile": "Make fitness fun again! Mom life in the PNW 🌲☕️ Parenting • Lifestyle • Realisti", "signability": "low", "engagement": "high", "followers": 65700, "videos": 1536, "is_signed": 1, "roi_score": 574.7}, {"id": 5, "profile": "Faith • Fitness • Fun Nana | Marathoner | Blended Family Easy at-home workouts +", "signability": "low", "engagement": "medium", "followers": 16700, "videos": 2530, "is_signed": 1, "roi_score": 1.4}, {"id": 6, "profile": "No bio yet.", "signability": "low", "engagement": "high", "followers": 983, "videos": 34, "is_signed": 1, "roi_score": 4.5}, {"id": 7, "profile": "67,00,000 followers 🎯 Collabs~  ⬇️New YouTube Video ⬇️", "signability": "high", "engagement": "low", "followers": 475000, "videos": 9905, "is_signed": 1, "roi_score": 0.0}, {"id": 8, "profile": "@ Jessica Rae", "signability": "high", "engagement": "low", "followers": 173500, "videos": 2380, "is_signed": 1, "roi_score": 0.0}, {"id": 9, "profile": "Iowa dad of 2 boys outdoors Business inquiries", "signability": "high", "engagement": "medium", "followers": 7867, "videos": 1531, "is_signed": 1, "roi_score": 0.0}, {"id": 10, "profile": "Finding the top health, cooking, home & pup related items Earns commission 💙", "signability": "medium", "engagement": "low", "followers": 17400, "videos": 3276, "is_signed": 1, "roi_score": 0.0}, {"id": 11, "profile": "Mom of 7🌸💕Wanna collab/promo? ↙️ NON PHONE WFH job leads daily 💕 My website site", "signability": "high", "engagement": "low", "followers": 17200, "videos": 1492, "is_signed": 1, "roi_score": 0.0}, {"id": 12, "profile": "Autism mom🧩-Mom🎀-Dog mom🐶-Wife💍 I promote furniture/home decor Farmhouse/Boho st", "signability": "high", "engagement": "low", "followers": 29900, "videos": 1387, "is_signed": 1, "roi_score": 0.0}, {"id": 13, "profile": "CEO of my home & mini van mom of 3 + cheer coach TYPE C | MAGIC MAKER | HOMEBODY", "signability": "low", "engagement": "high", "followers": 72500, "videos": 981, "is_signed": 0, "roi_score": 0.0}, {"id": 14, "profile": "📍CHI Just A Girl & Her Wigs 🦋", "signability": "high", "engagement": "medium", "followers": 16000, "videos": 292, "is_signed": 0, "roi_score": 0.0}, {"id": 15, "profile": "No bio yet.", "signability": "high", "engagement": "low", "followers": 201900, "videos": 485, "is_signed": 0, "roi_score": 0.0}, {"id": 16, "profile": "You Are Awesome! LIVE TUES-WED-THURS 4PM-6PM PST", "signability": "medium", "engagement": "medium", "followers": 18100, "videos": 437, "is_signed": 0, "roi_score": 0.0}, {"id": 17, "profile": "home + life storefronts ↡", "signability": "medium", "engagement": "medium", "followers": 30400, "videos": 718, "is_signed": 0, "roi_score": 0.0}, {"id": 18, "profile": "‘-", "signability": "medium", "engagement": "low", "followers": 107900, "videos": 467, "is_signed": 0, "roi_score": 0.0}, {"id": 19, "profile": "No bio yet.", "signability": "low", "engagement": "medium", "followers": 350100, "videos": 2880, "is_signed": 0, "roi_score": 0.0}, {"id": 20, "profile": "Visita my vitrina de la tienda TikTok shop y encuentras descuentos, promociones", "signability": "low", "engagement": "medium", "followers": 30500, "videos": 5603, "is_signed": 0, "roi_score": 0.0}, {"id": 21, "profile": "22 Murfreesboro, TN boy mom 🩵", "signability": "low", "engagement": "low", "followers": 51000, "videos": 195, "is_signed": 0, "roi_score": 0.0}, {"id": 22, "profile": "Gym girl  for collab info", "signability": "high", "engagement": "medium", "followers": 23300, "videos": 3798, "is_signed": 0, "roi_score": 0.0}, {"id": 23, "profile": "Recipes | Mukbang | Travel 👇🏼 E-Cookbook 👇🏼", "signability": "high", "engagement": "medium", "followers": 275800, "videos": 912, "is_signed": 0, "roi_score": 0.0}, {"id": 24, "profile": "all our favorites TikTok Shop Reviews", "signability": "high", "engagement": "low", "followers": 36300, "videos": 3161, "is_signed": 0, "roi_score": 0.0}, {"id": 25, "profile": "Check out my EBay account !", "signability": "medium", "engagement": "medium", "followers": 85500, "videos": 1343, "is_signed": 0, "roi_score": 0.0}, {"id": 26, "profile": "‘-", "signability": "medium", "engagement": "medium", "followers": 574200, "videos": 168, "is_signed": 0, "roi_score": 0.0}, {"id": 27, "profile": "DIY/LIFESTYLE/MOM", "signability": "medium", "engagement": "low", "followers": 182000, "videos": 1209, "is_signed": 0, "roi_score": 0.0}, {"id": 28, "profile": "Collabs :", "signability": "low", "engagement": "medium", "followers": 266200, "videos": 1996, "is_signed": 0, "roi_score": 0.0}, {"id": 29, "profile": "Food, Fitness & Fun @DFYNE @PEScience | taywing", "signability": "low", "engagement": "medium", "followers": 140400, "videos": 3961, "is_signed": 0, "roi_score": 0.0}, {"id": 30, "profile": "🌹💄🐆⚡️💵🌷🩷 ↓ Email ↓ ↓ Linktree ↓", "signability": "low", "engagement": "low", "followers": 96000, "videos": 920, "is_signed": 0, "roi_score": 0.0}], "Group4": [{"id": 1, "profile": "✞ SAHM | Wife | Home + Mom Finds", "signability": "low", "engagement": "high", "followers": 13200, "videos": 1868, "is_signed": 1, "roi_score": 3.0}, {"id": 2, "profile": "hello 👋", "signability": "low", "engagement": "high", "followers": 427200, "videos": 773, "is_signed": 1, "roi_score": 2.9}, {"id": 3, "profile": "Single Dad My ViewsRMy Own 🎣Outdoorsman🏹", "signability": "medium", "engagement": "high", "followers": 88000, "videos": 4832, "is_signed": 1, "roi_score": 9.4}, {"id": 4, "profile": "DIY garden queen | Affordable finds | Shop approved", "signability": "low", "engagement": "high", "followers": 10500, "videos": 1189, "is_signed": 1, "roi_score": 41.9}, {"id": 5, "profile": "Bienvenidos", "signability": "low", "engagement": "medium", "followers": 31400, "videos": 3673, "is_signed": 1, "roi_score": 4.4}, {"id": 6, "profile": "🚜 Farm life | 👨‍👩‍👧‍👦 Dad of 5 🔧 Tools, gear & real-world tests 💥 Everyday produ", "signability": "low", "engagement": "high", "followers": 23600, "videos": 7234, "is_signed": 1, "roi_score": 0.7}, {"id": 7, "profile": "lifestyle 🎀 | home 🌿 | cleaning 🫧 San Diego 🌴", "signability": "high", "engagement": "low", "followers": 475000, "videos": 9905, "is_signed": 1, "roi_score": 0.0}, {"id": 8, "profile": "Motherhood | Routines | Cleaning/Organizing | DIY", "signability": "high", "engagement": "low", "followers": 173500, "videos": 2380, "is_signed": 1, "roi_score": 0.0}, {"id": 9, "profile": "Petition for more ginger emojis 👩🏻‍🦰", "signability": "high", "engagement": "medium", "followers": 54800, "videos": 725, "is_signed": 1, "roi_score": 0.0}, {"id": 10, "profile": "✈️Love traveling 🏡Big Family", "signability": "medium", "engagement": "low", "followers": 13600, "videos": 6461, "is_signed": 1, "roi_score": 0.0}, {"id": 11, "profile": "Email", "signability": "high", "engagement": "low", "followers": 16800, "videos": 2589, "is_signed": 1, "roi_score": 0.0}, {"id": 12, "profile": "Canadian in Texas. Food-Home-Everything Inbetween", "signability": "high", "engagement": "low", "followers": 415500, "videos": 2662, "is_signed": 1, "roi_score": 0.0}, {"id": 13, "profile": "📍CHICAGO beauty, fashion & city finds", "signability": "low", "engagement": "high", "followers": 46200, "videos": 1293, "is_signed": 0, "roi_score": 0.0}, {"id": 14, "profile": "Mom X8 | Hacks | Activities | Mom Finds PNW, USA📍", "signability": "high", "engagement": "medium", "followers": 341400, "videos": 555, "is_signed": 0, "roi_score": 0.0}, {"id": 15, "profile": "🌼 50+ Beauty and Self Care 🌼 Barrier-First Beauty•Mature Skin Thoughtful Skincar", "signability": "high", "engagement": "low", "followers": 136900, "videos": 2680, "is_signed": 0, "roi_score": 0.0}, {"id": 16, "profile": "Spooky Nerds Makin Stuff For the Ghouls who get it Shop in person at: 211 N Hill", "signability": "medium", "engagement": "medium", "followers": 68600, "videos": 807, "is_signed": 0, "roi_score": 0.0}, {"id": 17, "profile": "SAHM of 3 and 🤰🏼 || Welcome to my page ❤️", "signability": "medium", "engagement": "medium", "followers": 190100, "videos": 1855, "is_signed": 0, "roi_score": 0.0}, {"id": 18, "profile": "No bio yet.", "signability": "medium", "engagement": "low", "followers": 24900, "videos": 254, "is_signed": 0, "roi_score": 0.0}, {"id": 19, "profile": "Affordable Fashion 👠 Florida Living 🌴 🌟 Star Creator Since 2024 🌟 Email Brand Co", "signability": "low", "engagement": "medium", "followers": 40100, "videos": 1711, "is_signed": 0, "roi_score": 0.0}, {"id": 20, "profile": "cosmic wave riding w/ planetary claustrophobia founder of @Witch Bitch Thrift me", "signability": "low", "engagement": "medium", "followers": 15900, "videos": 2634, "is_signed": 0, "roi_score": 0.0}, {"id": 21, "profile": "@Brooke Thank you so much for stopping by 🥹♥️", "signability": "low", "engagement": "low", "followers": 110400, "videos": 3381, "is_signed": 0, "roi_score": 0.0}, {"id": 22, "profile": "18 lifetime natural 🇺🇸🇷🇴 💍 4.5 years lifting🏋️‍♂️ Ask anything I answer all comm", "signability": "high", "engagement": "medium", "followers": 19000, "videos": 1921, "is_signed": 0, "roi_score": 0.0}, {"id": 23, "profile": "hobbies: self care, mom life, coffee 🧸", "signability": "high", "engagement": "medium", "followers": 117800, "videos": 2021, "is_signed": 0, "roi_score": 0.0}, {"id": 24, "profile": "midsize fashion + beauty not rich or skinny 🍸🫒🦪", "signability": "high", "engagement": "low", "followers": 78700, "videos": 3668, "is_signed": 0, "roi_score": 0.0}, {"id": 25, "profile": "Surrogacy Donations", "signability": "medium", "engagement": "medium", "followers": 113800, "videos": 1845, "is_signed": 0, "roi_score": 0.0}, {"id": 26, "profile": "No bio yet.", "signability": "medium", "engagement": "medium", "followers": 235200, "videos": 830, "is_signed": 0, "roi_score": 0.0}, {"id": 27, "profile": "No bio yet.", "signability": "medium", "engagement": "low", "followers": 286800, "videos": 9762, "is_signed": 0, "roi_score": 0.0}, {"id": 28, "profile": "Jesus is working on me. 💍👧🏻✝️🪴", "signability": "low", "engagement": "medium", "followers": 29500, "videos": 380, "is_signed": 0, "roi_score": 0.0}, {"id": 29, "profile": "Shopping deals - Product Reviews", "signability": "low", "engagement": "medium", "followers": 86500, "videos": 4289, "is_signed": 0, "roi_score": 0.0}, {"id": 30, "profile": "DIY. Budget finds. Home styling. Mom life", "signability": "low", "engagement": "low", "followers": 133500, "videos": 339, "is_signed": 0, "roi_score": 0.0}]}
+;
+const SURVEY=[
+  {id:1,t:"在这个任务中，我主要关心能否完成被评价的指标。"},
+  {id:2,t:"如果评价方式改变，我会显著改变我的选择标准。"},
+  {id:3,t:"即便某些选择可能降低最终效果，只要能提升我的KPI也值得。"},
+  {id:4,t:"我会优先选择更容易给我带来短期可见成绩的KOL。"}
+];
+const COND={
+  Group1:{metric:'signing',ai:false},
+  Group2:{metric:'signing',ai:true},
+  Group3:{metric:'roi',ai:false},
+  Group4:{metric:'roi',ai:true}
+};
+const MANIP_OPTIONS_SIGNING=['按我选中KOL的签约数量','按我选中KOL的视频ROI总和','按视频播放量','按粉丝总数'];
+const MANIP_OPTIONS_ROI=['按我选中KOL的视频ROI总和','按我选中KOL的签约数量','按视频播放量','按粉丝总数'];
+
+let S={group:null,cond:null,kols:[],sel:[],reasons:{},manip:null,survey:{},completionCode:null};
+
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function fmt(n){return n>=10000?(n/10000).toFixed(1)+'万':n.toLocaleString();}
+function tc(v){return{high:'th',medium:'tm',low:'tl'}[v]||'tg';}
+function tlabel(f,v){const m={high:'高',medium:'中',low:'低'};const fn={signability:'签约意愿',engagement:'近期互动'};return (fn[f]||f)+':'+(m[v]||v);}
+function genCode(){return 'KOL-'+Math.floor(1000+Math.random()*9000);}
+
+function enterGroup(){
+  const raw=document.getElementById('ci').value.trim().toUpperCase();
+  const map={G1:'Group1',G2:'Group2',G3:'Group3',G4:'Group4',GROUP1:'Group1',GROUP2:'Group2',GROUP3:'Group3',GROUP4:'Group4'};
+  const g=map[raw];
+  if(!g){document.getElementById('cerr').style.display='block';return;}
+  S.group=g;S.cond=COND[g];S.kols=shuffle(KD[g]);S.completionCode=genCode();nav(1);
+}
+
+function nav(n){
+  if(n===3)colR(false);
+  if(n===4)colR(true);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p'+n).classList.add('active');
+  window.scrollTo(0,0);
+  const fns={1:bP1,2:bP2,3:bP3,4:bP4,5:bP5};if(fns[n])fns[n]();
+}
+
+// PAGE 1 — Instructions
+function bP1(){
+  const {metric,ai}=S.cond;
+  const kpiHtml=metric==='signing'
+    ?'<div class="banner b-sign">📊 <strong>您的奖金基于：选中 KOL 的签约数量</strong><br><span style="font-weight:400;font-size:13px;">您选择的 5 位 KOL 中，最终成功签约合作的数量越多，奖励越高。</span></div>'
+    :'<div class="banner b-roi">📈 <strong>您的奖金基于：选中 KOL 的视频 ROI 总和</strong><br><span style="font-weight:400;font-size:13px;">您选择的 5 位 KOL 的互动与销售综合表现越好，奖励越高。KOL 的<strong>近期互动表现（Recent Engagement Level）</strong>是预测视频 ROI 的核心指标，请重点参考。</span></div>';
+  const aiHtml=ai
+    ?'<div class="banner b-ai"><div class="ai-pulse"></div><div>🤖 <strong>AI 对比说明</strong><br><span style="font-weight:400;font-size:13px;">我们正在研究人类与 AI 在不同场景下的能力差异。同一候选库中，AI 系统也在同步进行 KOL 选人。您的活动效果将与 AI 结果对比：<strong>效果超过 AI 可获额外奖励，低于 AI 则奖励减少。</strong></span></div></div>':'';
+  document.getElementById('kpi1').innerHTML=kpiHtml;
+  document.getElementById('ai1').innerHTML=aiHtml;
+}
+
+// PAGE 2 — KOL Selection
+function bP2(){
+  const {metric,ai}=S.cond;
+  const kpiSmall=metric==='signing'
+    ?'<div class="banner b-sign" style="margin-bottom:10px;padding:10px 16px;">📊 当前 KPI：<strong>签约数量</strong> — 选签约意愿高的 KOL 可提高得分</div>'
+    :'<div class="banner b-roi" style="margin-bottom:10px;padding:10px 16px;">📈 当前 KPI：<strong>视频 ROI 总和</strong> — 近期互动表现是预测 ROI 的核心指标</div>';
+  const aiSmall=ai
+    ?'<div class="banner b-ai" style="margin-bottom:10px;padding:10px 16px;"><div class="ai-pulse"></div><div>🤖 <strong>AI 正在同步评估中...</strong> 您的选人结果将与 AI 结果对比，效果超过 AI 可获额外奖励。</div></div>':'';
+  document.getElementById('kpi2').innerHTML=kpiSmall;
+  document.getElementById('ai2').innerHTML=aiSmall;
+
+  const g=document.getElementById('kg');g.innerHTML='';
+  S.kols.forEach(k=>{
+    const sel=S.sel.includes(k.id),dis=!sel&&S.sel.length>=5;
+    const c=document.createElement('div');
+    c.className='kol-card'+(sel?' ks':'')+(dis?' kd':'');
+    const sl=tlabel('signability',k.signability);
+    const el=tlabel('engagement',k.engagement);
+    c.innerHTML=(sel?'<div class="chk">✓</div>':'')+
+      '<div class="knum">KOL #'+k.id+'</div>'+
+      '<div class="kpro">'+k.profile+'</div>'+
+      '<div class="tags">'+
+        '<span class="tag '+tc(k.signability)+'">'+sl+'</span>'+
+        '<span class="tag '+tc(k.engagement)+'">'+el+'</span>'+
+        '<span class="tag tg">粉丝 '+fmt(k.followers)+'</span>'+
+        '<span class="tag tg">视频 '+fmt(k.videos)+'</span>'+
+      '</div>';
+    if(!dis||sel)c.addEventListener('click',()=>tog(k.id));
+    g.appendChild(c);
+  });
+  updCt();
+}
+
+function tog(id){const i=S.sel.indexOf(id);if(i>=0)S.sel.splice(i,1);else{if(S.sel.length>=5)return;S.sel.push(id);}bP2();}
+function updCt(){const n=S.sel.length;document.getElementById('sct').textContent='已选：'+n+' / 5';document.getElementById('bn2').disabled=n!==5;}
+
+// PAGE 3 — Reasons (required)
+function bP3(){
+  const c=document.getElementById('rc');c.innerHTML='';
+  const m={high:'高',medium:'中',low:'低'};
+  S.kols.filter(k=>S.sel.includes(k.id)).forEach(k=>{
+    const d=document.createElement('div');d.className='rb';
+    const sl=m[k.signability]||k.signability;
+    const el=m[k.engagement]||k.engagement;
+    d.innerHTML='<label>KOL #'+k.id+'</label>'+
+      '<div class="sub">签约意愿：'+sl+' | 近期互动：'+el+' | 粉丝：'+fmt(k.followers)+'</div>'+
+      '<textarea id="r'+k.id+'" placeholder="请简述您选择该 KOL 的主要考量（至少 5 个字）…" oninput="clearErr(\'re'+k.id+'\')">'+(S.reasons[k.id]||'')+'</textarea>'+
+      '<div class="field-err" id="re'+k.id+'">请填写选择理由（至少 5 个字）</div>';
+    c.appendChild(d);
+  });
+}
+
+function clearErr(id){const e=document.getElementById(id);if(e)e.style.display='none';}
+
+function colR(validate){
+  let ok=true;
+  S.sel.forEach(id=>{
+    const el=document.getElementById('r'+id);
+    if(el){
+      S.reasons[id]=el.value.trim();
+      if(validate&&S.reasons[id].length<5){
+        el.classList.add('err-field');
+        const err=document.getElementById('re'+id);if(err)err.style.display='block';
+        ok=false;
+      }else{
+        el.classList.remove('err-field');
+      }
+    }
+  });
+  return ok;
+}
+
+function goP4(){
+  if(!colR(true)){window.scrollTo(0,0);return;}
+  nav(4);
+}
+
+// PAGE 4 — Manipulation check + Survey
+function bP4(){
+  const {metric}=S.cond;
+  // Manipulation check options (shuffled, correct answer always first internally)
+  const opts=metric==='signing'?[...MANIP_OPTIONS_SIGNING]:[...MANIP_OPTIONS_ROI];
+  // shuffle all but keep track
+  const shuffled=shuffle(opts);
+  const correct=opts[0];// first option is always the correct one for this condition
+
+  let mcHtml='<div class="manip-check"><div class="qt">1. 在刚才的任务中，您的奖金由什么决定？（单选）</div><div class="mc-options">';
+  shuffled.forEach((opt,i)=>{
+    mcHtml+='<label class="mc-opt"><input type="radio" name="mc" value="'+opt+'" onchange="S.manip=\''+opt+'\'">'+(S.manip===opt?'':'')+'<span>'+opt+'</span></label>';
+  });
+  mcHtml+='</div></div>';
+
+  let surveyHtml='';
+  const lbls=['1\n完全不同意','2','3','4\n中立','5','6','7\n完全同意'];
+  SURVEY.forEach((item,idx)=>{
+    const rs=lbls.map((l,i)=>'<label><input type="radio" name="s'+item.id+'" value="'+(i+1)+'" '+(S.survey[item.id]===(i+1)?'checked':'')+' onchange="S.survey['+item.id+']='+(i+1)+';"><span class="lb">'+l+'</span></label>').join('');
+    surveyHtml+='<div class="sq"><div class="qt">'+(idx+2)+'. '+item.t+'</div><div class="lk">'+rs+'</div></div>';
+  });
+
+  document.getElementById('mc-survey').innerHTML=mcHtml+surveyHtml;
+}
+
+// PAGE 5 — Done
+function bP5(){}
+
+function submitAll(){
+  // Validate manip check
+  if(!S.manip){alert('请回答第1题（操纵检验）');return;}
+  const miss=SURVEY.filter(it=>!S.survey[it.id]);
+  if(miss.length){alert('请完成全部问卷题（还有 '+miss.length+' 题未作答）');return;}
+
+  // Compute DVs
+  const sk=S.kols.filter(k=>S.sel.includes(k.id));
+  const signed_count=sk.reduce((s,k)=>s+k.is_signed,0);
+  const roi_sum=parseFloat(sk.reduce((s,k)=>s+k.roi_score,0).toFixed(1));
+  const survey_mean=parseFloat((Object.values(S.survey).reduce((a,b)=>a+b,0)/SURVEY.length).toFixed(2));
+  const manip_correct=(S.cond.metric==='signing'&&S.manip===MANIP_OPTIONS_SIGNING[0])||(S.cond.metric==='roi'&&S.manip===MANIP_OPTIONS_ROI[0]);
+
+  // Compute Gaming Index components (raw — researcher computes z-scores across all participants)
+  const result={
+    timestamp:new Date().toISOString(),
+    completion_code:S.completionCode,
+    group:S.group,
+    metric:S.cond.metric,
+    ai_benchmark:S.cond.ai,
+    selected_ids:S.sel,
+    selected_signability:sk.map(k=>k.signability),
+    selected_engagement:sk.map(k=>k.engagement),
+    signed_count,
+    roi_sum,
+    manip_check_answer:S.manip,
+    manip_check_correct:manip_correct,
+    survey_scores:S.survey,
+    survey_mean,
+    reasons:S.reasons
+  };
+
+  // Show completion code
+  document.getElementById('done-code').textContent=S.completionCode;
+  nav(5);
+
+  // Submit to Google Sheets
+  const EP='YOUR_APPS_SCRIPT_URL';
+  if(EP!=='YOUR_APPS_SCRIPT_URL'){
+    fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(result),mode:'no-cors'}).catch(()=>{});
+  }
+  // Fallback: store in localStorage for researcher to retrieve
+  try{localStorage.setItem('kol_result_'+S.completionCode, JSON.stringify(result));}catch(e){}
+  // Also log to console for researcher
+  console.log('RESULT:', JSON.stringify(result, null, 2));
+}
+
+</script>
+</body>
+</html>
