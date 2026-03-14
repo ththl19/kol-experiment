@@ -99,9 +99,9 @@ p{font-size:14px;line-height:1.85;color:#444;margin-bottom:10px}
   <div class="slbl">第 1 步 / 共 5 步</div>
   <div class="card">
     <h1>任务说明</h1>
-    <p style="margin-top:12px;">本研究模拟真实 KOL 营销工作场景。您将扮演一名 <strong>KOL 经理</strong>，负责为品牌活动筛选合作红人。</p>
+    <p style="margin-top:12px;">本研究模拟真实 KOL 营销工作场景。您将扮演一名 <strong>品牌方的 KOL 合作负责人</strong>，负责为品牌活动筛选合作红人。</p>
     <p>请从包含 <strong>30 位候选 KOL</strong> 的库中，选出 <strong>5 位</strong>参与合作推广。整个任务限时 <strong>20 分钟</strong>。</p>
-    <p>每位 KOL 展示以下信息：<strong>个人简介、签约意愿（Signability）、近期互动表现（Recent Engagement Level）、粉丝数、视频数</strong>。</p>
+    <p>每位 KOL 展示以下信息：<strong>个人简介、签约意愿、近期互动表现、粉丝数、视频数</strong>。</p>
     <div class="divider"></div>
     <h2>推广产品</h2>
     <div class="pb">🛒 <strong>美国弹簧自动伸缩水管卷盘（白+灰）</strong><br><span style="font-size:13px;color:#666;">家用园艺自动收纳水管，免手动收卷、防缠绕，适合庭院浇水及洗车场景。</span></div>
@@ -183,8 +183,8 @@ const COND={
   Group3:{metric:'roi',ai:false},
   Group4:{metric:'roi',ai:true}
 };
-const MANIP_OPTIONS_SIGNING=['按我选中KOL的签约数量','按我选中KOL的视频ROI总和','按视频播放量','按粉丝总数'];
-const MANIP_OPTIONS_ROI=['按我选中KOL的视频ROI总和','按我选中KOL的签约数量','按视频播放量','按粉丝总数'];
+const MANIP_OPTIONS_SIGNING=['按我选中KOL的签约数量','按我选中KOL的视频ROI总和','按KOL已发布的视频总数','按粉丝总数'];
+const MANIP_OPTIONS_ROI=['按我选中KOL的视频ROI总和','按我选中KOL的签约数量','按KOL已发布的视频总数','按粉丝总数'];
 
 let S={group:null,cond:null,kols:[],sel:[],reasons:{},manip:null,survey:{},completionCode:null};
 
@@ -247,8 +247,8 @@ function bP2(){
       '<div class="tags">'+
         '<span class="tag '+tc(k.signability)+'">'+sl+'</span>'+
         '<span class="tag '+tc(k.engagement)+'">'+el+'</span>'+
-        '<span class="tag tg">粉丝 '+fmt(k.followers)+'</span>'+
-        '<span class="tag tg">视频 '+fmt(k.videos)+'</span>'+
+        '<span class="tag tg">粉丝数 '+fmt(k.followers)+'</span>'+
+        '<span class="tag tg">视频数 '+fmt(k.videos)+'</span>'+
       '</div>';
     if(!dis||sel)c.addEventListener('click',()=>tog(k.id));
     g.appendChild(c);
@@ -365,7 +365,7 @@ function submitAll(){
   nav(5);
 
   // Submit to Google Sheets
-  const EP='YOUR_APPS_SCRIPT_URL';
+  const EP='https://script.google.com/macros/s/AKfycbyS0-7HrrowRdFCkmNqkXdtlSpuAjLyKOkg6KzN5-wcHl4Yt1hVYssdREm_FZww7iuXEQ/exec';
   if(EP!=='YOUR_APPS_SCRIPT_URL'){
     fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(result),mode:'no-cors'}).catch(()=>{});
   }
