@@ -134,9 +134,9 @@ p{font-size:14px;line-height:1.85;color:#444;margin-bottom:10px}
   <div class="slbl">第 1 步 / 共 5 步</div>
   <div class="card">
     <h1>任务说明</h1>
-    <p style="margin-top:12px;">本研究模拟真实 KOL 营销工作场景。您将扮演一名<strong>公司 KOL 合作负责人</strong>。<strong>公司的目标</strong>是最大化 KOL 推广活动的综合效果（视频互动与销售表现）。您的工作是从候选库中筛选合适的 KOL 参与合作推广。</p>
-    <p>请从包含 <strong>30 位候选 KOL</strong> 的库中，选出 <strong>5 位</strong>。整个任务限时 <strong>20 分钟</strong>。</p>
-    <p>每位 KOL 展示以下信息：<strong>个人简介、签约意愿、近期互动表现</strong>（部分组别另可展开查看粉丝数和视频数）。</p>
+    <p style="margin-top:12px;">本研究模拟真实KOL营销工作场景。您将扮演一名<strong>公司KOL合作负责人</strong>。<strong>公司的目标</strong>是最大化KOL推广活动的综合效果（视频互动与销售表现）。您的工作是从候选库中筛选合适的KOL参与合作推广。</p>
+    <p>请从包含 <strong>30位候选KOL</strong> 的库中，选出 <strong>5位</strong>。整个任务限时<strong>20分钟</strong>。</p>
+    <p>将展示每位KOL的以下信息：<strong>个人简介、签约意愿、近期互动表现</strong>。</p>
     <div class="divider"></div>
     <h2>推广产品</h2>
     <div class="pb">🛒 <strong>美国弹簧自动伸缩水管卷盘（白+灰）</strong><br><span style="font-size:13px;color:#666;">家用园艺自动收纳水管，免手动收卷、防缠绕，适合庭院浇水及洗车场景。</span></div>
@@ -273,8 +273,8 @@ function bP1(){
   const {metric,ai,audit}=S.cond;
 
   const kpiBanner=metric==='signing'
-    ?'<div class="banner b-sign">📊 <strong>您的个人奖金基于：选中 KOL 的签约数量</strong><br><span style="font-weight:400;font-size:13px;">您选择的 5 位 KOL 中，最终成功签约合作的数量越多，奖励越高。</span></div>'
-    :'<div class="banner b-roi">📈 <strong>您的个人奖金基于：选中 KOL 的视频 ROI 总和</strong><br><span style="font-weight:400;font-size:13px;">您选择的 5 位 KOL 的互动与销售综合表现越好，奖励越高。<strong>近期互动表现</strong>是预测视频 ROI 的核心指标，请重点参考。</span></div>';
+    ?'<div class="banner b-sign">📊 <strong>您的个人奖金基于：选中 KOL 的签约数量</strong><br><span style="font-weight:400;font-size:13px;">您选择的 5 位 KOL 中，成功与您签约合作的总数量越多，奖励越高。</span></div>'
+    :'<div class="banner b-roi">📈 <strong>您的个人奖金基于：选中 KOL 的视频 ROI 总和</strong><br><span style="font-weight:400;font-size:13px;">您选择的 5 位 KOL 的视频互动总表现越好，奖励越高。</span></div>';
 
   const aiBanner=ai
     ?'<div class="banner b-ai"><div class="ai-pulse"></div><div>🤖 <strong>AI 对比说明</strong><br><span style="font-weight:400;font-size:13px;">我们正在研究人类与 AI 在不同场景下的能力差异。同一候选库中，AI 系统也在同步进行 KOL 选人。您的活动效果将与 AI 结果对比：<strong>效果超过 AI 可获额外奖励，低于 AI 则奖励减少。</strong></span></div></div>':'';
@@ -291,11 +291,11 @@ function bP2(){
   const {metric,ai,audit}=S.cond;
 
   const kpiSmall=metric==='signing'
-    ?'<div class="banner b-sign" style="margin-bottom:10px;padding:10px 16px;">📊 当前 KPI：<strong>签约数量</strong> — 签约意愿高的 KOL 更易签约</div>'
-    :'<div class="banner b-roi" style="margin-bottom:10px;padding:10px 16px;">📈 当前 KPI：<strong>视频 ROI 总和</strong> — 近期互动表现是预测 ROI 的核心指标</div>';
+    ?'<div class="banner b-sign" style="margin-bottom:10px;padding:10px 16px;">📊 当前 KPI：<strong>签约数量</strong> — “签约意愿”高的 KOL 更易签约</div>'
+    :'<div class="banner b-roi" style="margin-bottom:10px;padding:10px 16px;">📈 当前 KPI：<strong>视频互动表现总和</strong> — “近期互动表现”是预测视频互动的核心指标</div>';
 
   const expSmall=ai
-    ?'<div class="banner b-ai" style="margin-bottom:10px;padding:10px 16px;"><div class="ai-pulse"></div><div>🤖 <strong>AI 正在同步评估中...</strong> 您的选人结果将与 AI 结果对比，效果超过 AI 可获额外奖励。</div></div>'
+    ?'<div class="banner b-ai" style="margin-bottom:10px;padding:10px 16px;"><div class="ai-pulse"></div><div>🤖 <strong> AI 正在同步评估中...请注意，AI 的目标与公司目标（视频表现）完全相符，且 AI 本月以来达成了5万+次的视频播放量。</strong> 您的选人结果将与 AI 结果对比，效果超过 AI 可获额外奖励，低于 AI 则奖励减少。</div></div>'
     :audit
       ?'<div class="banner b-audit" style="margin-bottom:10px;padding:10px 16px;"><div class="audit-pulse"></div><div>🔍 <strong>行为记录中...</strong> 你查看 KOL 详细信息的次数正在被记录，提交前将显示 AI 行为摘要。</div></div>'
       :'';
