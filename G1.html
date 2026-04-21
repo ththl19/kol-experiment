@@ -492,7 +492,7 @@ function submitAll(){
   document.getElementById('p8').classList.add('active');
   window.scrollTo(0,0);
 
-  const EP='https://script.google.com/macros/s/AKfycbxBxxGTYOBCkaMYgIXJKvxHfuUQh0v4vhfksMXPY4aL6G65LzzlU31Ls_BeHsAuwkO7Gg/exec';
+  const EP='https://script.google.com/macros/s/AKfycbxwOxE5HY6GCkU_ks1UqgAvMkSwmQGqfW0H7DhoWYiaqjSzExbZ13Yvw0V7vqMca9I_wA/exec';
   fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(result),mode:'no-cors'}).catch(()=>{});
 }
 
