@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOL 选人研究实验 · G2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f4f6fb;color:#1a1a2e;min-height:100vh}
+.page{display:none;max-width:900px;margin:0 auto;padding:36px 20px 80px}
+.page.active{display:block}
+h1{font-size:22px;font-weight:700;margin-bottom:6px}
+h2{font-size:16px;font-weight:600;margin-bottom:12px}
+p{font-size:14px;line-height:1.85;color:#444;margin-bottom:10px}
+.card{background:#fff;border-radius:14px;padding:28px 32px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:11px 28px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:.18s}
+.btn-p{background:#3d5af1;color:#fff}.btn-p:hover{background:#2d4ae0}
+.btn-s{background:#e9ecef;color:#555}.btn-s:hover{background:#dde1e7}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.pw{max-width:900px;margin:0 auto;padding:20px 20px 0}
+.prog{height:5px;background:#e4e8f0;border-radius:3px}
+.pf{height:100%;background:#3d5af1;border-radius:3px;transition:width .4s}
+.slbl{font-size:12px;color:#999;text-align:right;max-width:900px;margin:5px auto 16px;padding-right:20px}
+.banner{border-radius:10px;padding:14px 18px;font-size:13.5px;font-weight:600;margin-bottom:16px;line-height:1.6}
+.b-sign{background:#fff8e1;border:1.5px solid #ffc107;color:#7a5400}
+.b-roi{background:#e8f5e9;border:1.5px solid #43a047;color:#1b5e20}
+.b-ai{background:#e3eafc;border:1.5px solid #3d5af1;color:#1a2a80;display:flex;align-items:flex-start;gap:10px}
+.ai-pulse{width:10px;height:10px;border-radius:50%;background:#3d5af1;flex-shrink:0;margin-top:3px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.kol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(242px,1fr));gap:13px}
+.kol-card{background:#fff;border-radius:11px;border:2px solid #e4e8f0;transition:border-color .15s,background .15s;position:relative;user-select:none;overflow:hidden}
+.kol-card:hover:not(.kd){border-color:#3d5af1;box-shadow:0 3px 14px rgba(61,90,241,.13)}
+.kol-card.ks{border-color:#3d5af1;background:#f0f3fe}
+.kol-card.kd{opacity:.42}
+.kol-card.kd .kol-summary{cursor:not-allowed}
+.kol-summary{padding:15px 16px;cursor:pointer}
+.knum{font-size:11px;color:#aaa;margin-bottom:3px;font-weight:500}
+.kpro{font-size:12.5px;color:#555;line-height:1.5;height:52px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;margin-bottom:9px}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:11.5px;padding:3px 9px;border-radius:20px;font-weight:500;background:#f1f3f5;color:#495057}
+.chk{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:#3d5af1;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700;pointer-events:none}
+.sel-ct{font-size:14px;font-weight:600;color:#3d5af1;margin-bottom:14px}
+.divider{height:1px;background:#eee;margin:18px 0}
+.fe{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.muted{color:#999;font-size:13px}
+.rb{margin-bottom:20px}
+.rb label{font-size:13.5px;font-weight:600;display:block;margin-bottom:4px;color:#333}
+.rb .sub{font-size:12px;color:#888;margin-bottom:6px}
+.rb textarea{width:100%;border:1.5px solid #dde1e7;border-radius:8px;padding:10px 13px;font-size:13.5px;resize:vertical;min-height:68px;font-family:inherit;line-height:1.6}
+.rb textarea:focus{outline:none;border-color:#3d5af1}
+.rb textarea.err-field{border-color:#dc3545}
+.field-err{color:#dc3545;font-size:12px;margin-top:4px;display:none}
+.sq{margin-bottom:26px}
+.sq .qt{font-size:14px;font-weight:600;line-height:1.65;margin-bottom:10px}
+.lk{display:flex}
+.lk label{flex:1;text-align:center;cursor:pointer}
+.lk input[type=radio]{display:none}
+.lk .lb{display:block;padding:9px 2px;font-size:11.5px;border:1.5px solid #dde1e7;border-right:none;background:#fff;transition:.12s;white-space:pre-line;line-height:1.35}
+.lk label:first-child .lb{border-radius:7px 0 0 7px}
+.lk label:last-child .lb{border-radius:0 7px 7px 0;border-right:1.5px solid #dde1e7}
+.lk input:checked+.lb{background:#3d5af1;color:#fff;border-color:#3d5af1}
+.lk label:hover .lb{background:#eef1fd}
+.mc-options{display:flex;flex-direction:column;gap:8px}
+.mc-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #dde1e7;border-radius:8px;cursor:pointer;font-size:13.5px;transition:.12s}
+.mc-opt:hover{border-color:#3d5af1;background:#f0f3fe}
+.mc-opt input{width:16px;height:16px;accent-color:#3d5af1}
+.sq-section{font-size:12px;font-weight:700;color:#3d5af1;letter-spacing:.5px;text-transform:uppercase;margin:28px 0 14px;padding-bottom:6px;border-bottom:1.5px solid #e3eafc;}
+/* ── 双指标冲突横幅 ── */
+.conflict-bar{display:flex;align-items:stretch;gap:0;max-width:900px;margin:0 auto 10px;border-radius:10px;overflow:hidden;border:1.5px solid #dde1e7;font-size:13px;}
+.cb-sign{flex:1;background:#fff8e1;padding:11px 16px;border-right:1.5px dashed #e0c060;}
+.cb-sign .cb-label{font-size:11px;font-weight:600;color:#7a5400;margin-bottom:3px;}
+.cb-sign .cb-val{font-weight:700;color:#7a5400;font-size:14px;}
+.cb-mid{display:flex;align-items:center;justify-content:center;padding:0 12px;background:#f4f6fb;color:#aaa;font-size:18px;font-weight:300;}
+.cb-ai{flex:1;background:#e3eafc;padding:11px 16px;border-left:1.5px dashed #8099f0;}
+.cb-ai .cb-label{font-size:11px;font-weight:600;color:#1a2a80;margin-bottom:3px;}
+.cb-ai .cb-val{font-weight:700;color:#1a2a80;font-size:14px;}
+.cb-note{font-size:11px;color:#888;margin-top:2px;}
+.sq-section{font-size:12px;font-weight:700;color:#3d5af1;letter-spacing:.5px;text-transform:uppercase;margin:28px 0 14px;padding-bottom:6px;border-bottom:1.5px solid #e3eafc;}
+.done-wrap{max-width:480px;margin:80px auto;text-align:center}
+.done-code{font-size:48px;font-weight:700;color:#3d5af1;letter-spacing:4px;margin:20px 0;font-family:monospace}
+.pb{background:#f0f4ff;border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:14px}
+</style>
+</head>
+<body>
+
+<!-- P1: Instructions -->
+<div id="p1" class="page active">
+  <div class="pw"><div class="prog"><div class="pf" style="width:10%"></div></div></div>
+  <div class="slbl">第 1 步 / 共 10 步</div>
+  <div class="card">
+    <h1>任务说明</h1>
+    <p style="margin-top:12px;">您是一名KOL合作负责人，负责为品牌方寻找合适的KOL进行推广合作。现有一个品牌方希望推广以下产品，您需要从30位候选KOL中挑选5位，向他们发出合作邀约。<strong>您所在公司希望通过此次合作最大化视频总播放量。</strong></p>
+    <div class="pb" style="margin-top:12px;">🛒 <strong>推广产品：美国弹簧自动伸缩水管卷盘（白+灰）</strong><br><span style="font-size:13px;color:#666;">家用园艺自动收纳水管，免手动收卷、防缠绕，适合庭院浇水及洗车场景。</span></div>
+    <p style="margin-top:12px;">每位KOL将展示以下信息供您参考：<strong>个人简介、粉丝数、视频数、历史合作次数、近期均播放量</strong>。</p>
+    <div class="divider"></div>
+    <div class="banner b-sign">📊 <strong>您的个人绩效指标（KPI）：选中KOL的签约数量</strong><br><span style="font-weight:400;font-size:13px;">您选择的5位KOL中，成功与您签约合作的总数量越多，个人奖励越高。</span></div>
+    <div class="banner b-ai"><div class="ai-pulse"></div><div>🤖 <strong>AI 对比说明</strong><br><span style="font-weight:400;font-size:13px;">我们正在研究人类与 AI 在不同场景下的能力差异。同一候选库中，AI 系统也在同步进行 KOL 选人。我们将以<strong>合作视频的总播放量</strong>为指标，衡量您与 AI 的选人效果：效果超过 AI 可获额外奖励，低于 AI 则奖励减少。<br>请注意：您的个人奖金（签约数量）与 AI 对比指标（播放量）是两套独立规则，您需要自行权衡。</span></div></div>
+    <div class="divider"></div>
+    <p style="font-size:13px;color:#666;">请在安静、不受干扰的环境下完成作答，并认真阅读各页说明，以免影响您的报酬。</p>
+    <div class="fe"><button class="btn btn-p" onclick="nav(2)">我已了解，开始选人 →</button></div>
+  </div>
+</div>
+
+<!-- P2: KOL Selection -->
+<div id="p2" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:30%"></div></div></div>
+  <div class="slbl">第 2 步 / 共 10 步 · 请选择 5 位 KOL</div>
+  <div class="conflict-bar" style="max-width:900px;margin-left:auto;margin-right:auto;margin-bottom:10px;">
+    <div class="cb-sign">
+      <div class="cb-label">💰 您的个人奖金</div>
+      <div class="cb-val">签约数量</div>
+      <div class="cb-note">选中KOL成功签约越多，奖励越高</div>
+    </div>
+    <div class="cb-mid">⇄</div>
+    <div class="cb-ai">
+      <div class="cb-label">🤖 AI 对比指标</div>
+      <div class="cb-val">合作视频总播放量<br><span style="font-size:11px;font-weight:400;color:#3d5af1;">（与公司目标相同）</span></div>
+      <div class="cb-note">超过AI播放量可获额外奖励，低于则减少</div>
+    </div>
+  </div>
+  <div class="banner b-ai" style="margin-bottom:10px;padding:10px 16px;max-width:900px;margin-left:auto;margin-right:auto;"><div class="ai-pulse"></div><div>🤖 <strong>AI 正在同步评估中···</strong> AI 的选人目标与公司目标（视频播放量）完全相符，AI 本月选择的 KOL 共达成了 <strong>35万+ 次视频播放量</strong>。您的选人结果将以<strong>合作视频总播放量</strong>与 AI 对比，效果超过 AI 可获额外奖励，低于 AI 则奖励减少。</div></div>
+  <div class="sel-ct" id="sct">已选：0 / 5</div>
+  <div class="kol-grid" id="kg"></div>
+  <div class="fe">
+    <button id="bn2" class="btn btn-p" disabled onclick="nav(3)">下一步：填写选择理由 →</button>
+  </div>
+</div>
+
+<!-- P3: Reasons -->
+<div id="p3" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:50%"></div></div></div>
+  <div class="slbl">第 3 步 / 共 10 步</div>
+  <div class="card">
+    <h1>选择理由</h1>
+    <p>请简要说明您选择每位 KOL 时主要参考了哪些信息，以及背后的考虑（必填，至少 5 个字）。</p>
+    <div class="divider"></div>
+    <div id="rc"></div>
+    <div class="fe">
+      <button class="btn btn-p" onclick="goP4()">下一步：填写完毕 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- P4: Gaming tendency slider -->
+<!-- P4: MC Q1 个人奖金 -->
+<div id="p4" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:55%"></div></div></div>
+  <div class="slbl">第 4 步 / 共 10 步</div>
+  <div class="card">
+    <h1>问题一</h1>
+    <p>请根据刚才的任务说明回答以下问题。</p>
+    <div class="divider"></div>
+    <div class="sq">
+      <div class="qt">在刚才的任务中，您的<strong>个人奖金</strong>由什么决定？（单选）</div>
+      <div class="mc-options" id="mc1-opts"></div>
+    </div>
+    <div class="fe"><button class="btn btn-p" onclick="goP5()">下一题 →</button></div>
+  </div>
+</div>
+
+<!-- P5: MC Q2 公司目标 -->
+<div id="p5" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:66%"></div></div></div>
+  <div class="slbl">第 5 步 / 共 10 步</div>
+  <div class="card">
+    <h1>问题二</h1>
+    <p>请根据刚才的任务说明回答以下问题。</p>
+    <div class="divider"></div>
+    <div class="sq">
+      <div class="qt">在本任务中，<strong>您所在公司</strong>希望最大化的是什么？（单选）</div>
+      <div class="mc-options" id="mc2-opts"></div>
+    </div>
+    <div class="fe"><button class="btn btn-p" onclick="goP6()">下一题 →</button></div>
+  </div>
+</div>
+
+<!-- P6: Self-interest survey -->
+<!-- P6: MC Q3 AI感知 -->
+<div id="p6" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:70%"></div></div></div>
+  <div class="slbl">第 6 步 / 共 10 步</div>
+  <div class="card">
+    <h1>问题三</h1>
+    <p>请根据刚才的任务说明回答以下问题。</p>
+    <div class="divider"></div>
+    <div class="sq">
+      <div class="qt">在本任务中，您是否感知到有 AI 系统在同步评估 KOL 候选人？（单选）</div>
+      <div class="mc-options" id="mc3-opts"></div>
+    </div>
+    <div class="fe"><button class="btn btn-p" onclick="goP7ai()">下一题 →</button></div>
+  </div>
+</div>
+
+<!-- P7: MC Q4 AI目标 -->
+<div id="p7" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:72%"></div></div></div>
+  <div class="slbl">第 7 步 / 共 10 步</div>
+  <div class="card">
+    <h1>问题四</h1>
+    <p>请根据刚才的任务说明回答以下问题。</p>
+    <div class="divider"></div>
+    <div class="sq">
+      <div class="qt">在本任务中，AI 系统的选人目标是什么？（单选）</div>
+      <div class="mc-options" id="mc4-opts"></div>
+    </div>
+    <div class="fe"><button class="btn btn-p" onclick="goP8()">下一题 →</button></div>
+  </div>
+</div>
+
+<div id="p8" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:82%"></div></div></div>
+  <div class="slbl">第 8 步 / 共 10 步</div>
+  <div class="card">
+    <h1>关于您的工作偏好</h1>
+    <p>以下题目询问您在工作中的一般倾向。本问卷完全匿名，结果不影响报酬，请如实作答。</p>
+    <div class="divider"></div>
+    <div id="survey-items"></div>
+    <div class="fe"><button class="btn btn-p" onclick="goP9()">下一步 →</button></div>
+  </div>
+</div>
+
+<!-- P9: Gaming slider -->
+<div id="p9" class="page">
+  <div class="pw"><div class="prog"><div class="pf" style="width:92%"></div></div></div>
+  <div class="slbl">第 9 步 / 共 10 步</div>
+  <div class="card">
+    <h1>关于您的选人决策</h1>
+    <p>以下问题询问您在刚才选人时的偏好，请如实作答。</p>
+    <div class="divider"></div>
+    <div class="sq">
+      <div class="qt">在选人时，您更倾向于优先满足哪个目标？请拖动滑块表示您的偏好：</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin:14px 0 6px;">
+        <span>💰 完全优先个人KPI（签约数量）</span>
+        <span>🏢 完全优先公司目标（总播放量）</span>
+      </div>
+      <input type="range" id="gaming-slider" min="0" max="100" value="50"
+        style="width:100%;accent-color:#3d5af1;height:6px;cursor:pointer;"
+        oninput="updSlider(this.value)">
+      <div style="text-align:center;margin-top:10px;">
+        <span id="slider-label" style="font-size:13px;font-weight:600;color:#3d5af1;">50 — 两者兼顾</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#bbb;margin-top:4px;">
+        <span>0</span><span>50</span><span>100</span>
+      </div>
+    </div>
+    <div class="fe"><button class="btn btn-p" onclick="submitAll()">提交 →</button></div>
+  </div>
+</div>
+
+<!-- P8: Done -->
+<div id="p10" class="page">
+  <div class="done-wrap">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">✅</div>
+      <h1>任务已完成</h1>
+      <p style="margin-top:12px;color:#555;">感谢您的参与！您的数据已记录。</p>
+      <div class="done-code" id="done-code">------</div>
+      <p class="muted">完成码用于后台确认您的参与记录。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Group config ──────────────────────────────────────────────────────────────
+const GROUP = 'Group2';
+const COND  = {metric:'signing', ai:true};
+
+// ── KOL Data (30 KOLs, same for all groups) ───────────────────────────────────
+const KOLS_RAW = [
+  {id:1,  name:'Wren Goodman',           profile:'好物分享，持续更新！',                      followers:55600,  videos:2535, collabs:'0次',  avg_plays:280000},
+  {id:2,  name:'AJhump',                 profile:'五个孩子的妈妈',                         followers:24800,  videos:971,  collabs:'0次',  avg_plays:50000},
+  {id:3,  name:'Patrick Callahan-Rothel',profile:'节日装饰达人（万圣节/圣诞）',                      followers:11700,  videos:331,  collabs:'0次',  avg_plays:45000},
+  {id:4,  name:'static_chris',           profile:'汽车 · 工具 · 产品测评',               followers:33500,  videos:330,  collabs:'0次',  avg_plays:20000},
+  {id:5,  name:'@Home with Hannah',      profile:'生活记录博主',                                followers:32100,  videos:968,  collabs:'0次',  avg_plays:24000},
+  {id:6,  name:'The Patrick Homestead',  profile:'农场生活妈妈博主',                              followers:13800,  videos:516,  collabs:'0次',  avg_plays:14000},
+  {id:7,  name:"Scott O'Briant",         profile:"男士穿搭 / 科技 / 日常装备",                           followers:20800,  videos:1310, collabs:'0次',  avg_plays:10000},
+  {id:8,  name:'almeida_air_conditioner',profile:'家居与户外产品',                               followers:39600,  videos:2219, collabs:'0次',  avg_plays:10000},
+  {id:9,  name:'chantlycaree',           profile:'不废话，只分享最好的家居好物',                    followers:32800,  videos:2593, collabs:'0次',  avg_plays:8000},
+  {id:10, name:'Grant Deals',            profile:'科技好物推荐，店铺GMV破千万',     followers:207500, videos:4408, collabs:'0次',  avg_plays:6000},
+  {id:11, name:'Lindsay Dorsey',         profile:'真实生活记录 🫶🏼👩🏼‍🌾',                          followers:34500,  videos:3429, collabs:'5次',  avg_plays:1500},
+  {id:12, name:'amateurhourgardening',   profile:'乡村生活日记',                                followers:23500,  videos:2989, collabs:'4次',  avg_plays:1200},
+  {id:13, name:'ryankevintomlinson',     profile:'平台带货达人，销售排名前1%',                           followers:20200,  videos:3769, collabs:'5次',  avg_plays:1800},
+  {id:14, name:'wvmombabe',              profile:'自闭症孩子的妈妈🧩 / 农舍风家居',                          followers:33600,  videos:1927, collabs:'3次',  avg_plays:1000},
+  {id:15, name:'Cassi TTShop Finds',     profile:'带货达人 / UGC内容创作者',                           followers:17200,  videos:2204, collabs:'4次',  avg_plays:900},
+  {id:16, name:'travisc74',              profile:'四个孩子的爸爸，已退休 / 工具、科技与DIY', followers:24900, videos:4799, collabs:'6次', avg_plays:2000},
+  {id:17, name:'freshdailydealz',        profile:'🛍️ 精选平台优惠好物',                    followers:22000,  videos:4462, collabs:'5次',  avg_plays:1000},
+  {id:18, name:'Tommy Reagan',           profile:'🚜 农场生活 / 工具与装备',                           followers:20900,  videos:4784, collabs:'4次',  avg_plays:600},
+  {id:19, name:'Kookiethehuskie',        profile:'和两只爱宠的日常生活',                          followers:15500,  videos:2396, collabs:'3次',  avg_plays:1000},
+  {id:20, name:'John Jacinto',           profile:'产品测评博主 / 已婚',              followers:24000,  videos:2778, collabs:'4次',  avg_plays:3400},
+  {id:21, name:'diywithsam',             profile:'汽车 · 建筑 · DIY',                               followers:14900,  videos:2376, collabs:'1次',  avg_plays:4000},
+  {id:22, name:'buyinwithbrian',         profile:'平台精选优惠好物',                                     followers:13100,  videos:1956, collabs:'1次',  avg_plays:3500},
+  {id:23, name:'alexhigdon_',            profile:'家居 | 美妆 ✉️ 好物分享',             followers:10800,  videos:1366, collabs:'1次',  avg_plays:3000},
+  {id:24, name:'4ftaesthetics',          profile:'崇尚自然生活的博主 🇺🇸🇷🇴',                            followers:19000,  videos:1921, collabs:'2次',  avg_plays:5000},
+  {id:25, name:'jazzecie',               profile:'生活方式 · 健身 · 母婴内容',                   followers:4982,   videos:264,  collabs:'1次',  avg_plays:500},
+  {id:26, name:'shanta_finds_and_food',  profile:'厨房 · 家居 · 生活方式',                             followers:20300,  videos:2012, collabs:'2次',  avg_plays:5500},
+  {id:27, name:'courtneykinn',           profile:'家居 + 生活',                                           followers:30400,  videos:718,  collabs:'1次',  avg_plays:4000},
+  {id:28, name:'detriarochelle',         profile:'园艺 + 家居装饰 + 生活方式',                        followers:81700,  videos:629,  collabs:'2次',  avg_plays:5500},
+  {id:29, name:'alwazeonvacation',       profile:'平价时尚 👠',                                 followers:40100,  videos:1711, collabs:'1次',  avg_plays:4500},
+  {id:30, name:'worthabuck',             profile:'购物优惠 · 产品测评',                      followers:86500,  videos:4289, collabs:'2次',  avg_plays:6000},
+];
+
+// Signed status (for scoring): Group1 = ROI target group; use historical cooperation as proxy
+// G1 KPI = signing → signed KOLs are those with 历史合作 > 0 (collabs != '0次')
+// We embed is_signed per the excel data logic: 组1 = 0次 means never signed, 组2 = signed
+const KOLS = KOLS_RAW;
+
+const MANIP_SIGNING = ['按我选中KOL的签约数量','按我选中KOL的合作视频实际播放量总和','按KOL已发布的视频总数','按粉丝总数'];
+const MANIP_ROI     = ['按我选中KOL的合作视频实际播放量总和','按我选中KOL的签约数量','按KOL已发布的视频总数','按粉丝总数'];
+
+const SURVEY_SELF = [
+  {id:1, t:'工作中遇到个人指标和整体效果冲突时，我会优先保证个人指标。'},
+  {id:2, t:'如果考核方式变了，我也会相应调整自己的工作重心。'},
+  {id:3, t:'即使某些做法对组织帮助不大，只要能提升个人绩效，我也会倾向于那样做。'},
+  {id:4, t:'我倾向于优先做那些结果可见、容易被考核到的工作。'},
+];
+const SURVEY_AI = [
+  {id:5, t:'在选人过程中，我感到来自 AI 表现的压力，并因此开始考虑播放量因素。'},
+  {id:6, t:'AI 的存在让我在「签约率更高的KOL」与「播放量更高的KOL」之间更难做取舍。'},
+  {id:7, t:'我做出了某些对公司目标（播放量）有利、但对我个人KPI（签约数量）帮助不大的选择。'},
+];
+const SURVEY = [...SURVEY_SELF, ...SURVEY_AI];
+
+let S = {
+  kols:[], sel:[], reasons:{}, gaming_slider:50, manip_kpi:null, manip_org:null, ai_check:null, ai_check2:null, survey:{}, completionCode:null
+};
+
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function fmt(n){
+  if(n>=10000) return (n/10000).toFixed(1)+'万';
+  return n.toLocaleString();
+}
+function genCode(){return 'KOL-'+Math.floor(1000+Math.random()*9000);}
+
+function updSlider(v){
+  S.gaming_slider = parseInt(v);
+  const el = document.getElementById('slider-label');
+  if(!el) return;
+  let label;
+  if(v<=15) label='倾向于个人KPI';
+  else if(v<=35) label='偏向个人KPI';
+  else if(v<=65) label='两者兼顾';
+  else if(v<=85) label='偏向公司目标';
+  else label='倾向于公司目标';
+  el.textContent = v+' — '+label;
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function nav(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p'+n).classList.add('active');
+  window.scrollTo(0,0);
+  if(n===2) bP2();
+  if(n===3) bP3();
+  if(n===4) bP4();
+  if(n===5) bP5();
+  if(n===6) bP6();
+  if(n===7) bP7();
+  if(n===8) bP8();
+  if(n===9) bP9();
+
+}
+
+// ── Page 2: KOL Selection ─────────────────────────────────────────────────────
+function bP2(){
+  if(document.getElementById('kg').children.length===0){
+    S.kols = shuffle([...KOLS]);
+    S.kols.forEach(k=>document.getElementById('kg').appendChild(buildCard(k)));
+  }
+  renderGrid();
+}
+
+function buildCard(k){
+  const card = document.createElement('div');
+  card.className = 'kol-card';
+  card.id = 'kcard-'+k.id;
+
+  const summary = document.createElement('div');
+  summary.className = 'kol-summary';
+  summary.innerHTML =
+    '<div class="knum">KOL #'+k.id+'</div>'+
+    '<div class="kpro">'+k.profile+'</div>'+
+    '<div class="tags">'+
+      '<span class="tag">粉丝数 '+fmt(k.followers)+'</span>'+
+      '<span class="tag">视频数 '+fmt(k.videos)+'</span>'+
+      '<span class="tag">历史合作 '+k.collabs+'</span>'+
+      '<span class="tag">均播放量 '+fmt(k.avg_plays)+'</span>'+
+    '</div>';
+
+  summary.addEventListener('click',()=>{
+    const cardEl = document.getElementById('kcard-'+k.id);
+    if(cardEl.classList.contains('kd')) return;
+    tog(k.id);
+  });
+  card.appendChild(summary);
+  return card;
+}
+
+function renderGrid(){
+  S.kols.forEach(k=>{
+    const card = document.getElementById('kcard-'+k.id);
+    if(!card) return;
+    const sel = S.sel.includes(k.id);
+    const dis = !sel && S.sel.length>=5;
+    card.className = 'kol-card'+(sel?' ks':'')+(dis?' kd':'');
+    let chk = card.querySelector('.chk');
+    if(sel&&!chk){chk=document.createElement('div');chk.className='chk';chk.textContent='✓';card.querySelector('.kol-summary').prepend(chk);}
+    else if(!sel&&chk){chk.remove();}
+    card.querySelector('.kol-summary').style.cursor = dis?'not-allowed':'pointer';
+  });
+  updCt();
+}
+
+function tog(id){
+  const i=S.sel.indexOf(id);
+  if(i>=0) S.sel.splice(i,1);
+  else{if(S.sel.length>=5) return; S.sel.push(id);}
+  renderGrid();
+}
+
+function updCt(){
+  const n=S.sel.length;
+  document.getElementById('sct').textContent='已选：'+n+' / 5';
+  document.getElementById('bn2').disabled=n!==5;
+}
+
+// ── Page 3: Reasons ───────────────────────────────────────────────────────────
+function bP3(){
+  const c=document.getElementById('rc'); c.innerHTML='';
+  const selKols = S.kols.filter(k=>S.sel.includes(k.id));
+  selKols.forEach(k=>{
+    const d=document.createElement('div'); d.className='rb';
+    d.innerHTML='<label>KOL #'+k.id+' · '+k.name+'</label>'+
+      '<div class="sub" style="font-size:12.5px;color:#444;margin-bottom:4px;">'+k.profile+'</div>'+
+      '<div class="sub">粉丝数：'+fmt(k.followers)+' | 视频数：'+fmt(k.videos)+' | 历史合作：'+k.collabs+' | 均播放量：'+fmt(k.avg_plays)+'</div>'+
+      '<textarea id="r'+k.id+'" placeholder="请简述您选择该 KOL 的主要考量（至少 5 个字）…" oninput="clearErr(\'re'+k.id+'\')">'+(S.reasons[k.id]||'')+'</textarea>'+
+      '<div class="field-err" id="re'+k.id+'">请填写选择理由（至少 5 个字）</div>';
+    c.appendChild(d);
+  });
+}
+
+function clearErr(id){const e=document.getElementById(id);if(e)e.style.display='none';}
+
+function colR(validate){
+  let ok=true;
+  S.sel.forEach(id=>{
+    const el=document.getElementById('r'+id);
+    if(el){
+      S.reasons[id]=el.value.trim();
+      if(validate&&S.reasons[id].length<5){
+        el.classList.add('err-field');
+        const err=document.getElementById('re'+id);if(err)err.style.display='block';
+        ok=false;
+      } else {el.classList.remove('err-field');}
+    }
+  });
+  return ok;
+}
+
+function goP4(){
+  if(!colR(true)){window.scrollTo(0,0);return;}
+  nav(4);
+}
+
+// ── buildOpts helper ──────────────────────────────────────────────────────────
+function buildOpts(containerId, opts, onSelect){
+  const c = document.getElementById(containerId);
+  if(!c || c.children.length) return;
+  opts.forEach(opt=>{
+    const lbl = document.createElement('label');
+    lbl.className = 'mc-opt';
+    const inp = document.createElement('input');
+    inp.type = 'radio';
+    inp.name = containerId;
+    inp.value = opt;
+    inp.addEventListener('change', ()=>onSelect(opt));
+    const sp = document.createElement('span');
+    sp.textContent = opt;
+    lbl.appendChild(inp);
+    lbl.appendChild(sp);
+    c.appendChild(lbl);
+  });
+}
+
+// ── Page 4: MC Q1 ─────────────────────────────────────────────────────────────
+function bP4(){
+  buildOpts('mc1-opts', shuffle([...MANIP_SIGNING]), v=>{ S.manip_kpi=v; });
+}
+
+function goP5(){
+  if(!S.manip_kpi){alert('请选择一个选项');return;}
+  nav(5);
+}
+
+// ── Page 5: MC Q2 ─────────────────────────────────────────────────────────────
+function bP5(){
+  buildOpts('mc2-opts', shuffle(['最大化合作视频总播放量','最大化签约KOL数量','最大化KOL粉丝总数','最大化视频发布频率']), v=>{ S.manip_org=v; });
+}
+
+function goP6(){
+  if(!S.manip_org){alert('请选择一个选项');return;}
+  nav(6);
+}
+
+function goP7ai(){
+  if(!S.ai_check){alert('请选择一个选项');return;}
+  nav(7);
+}
+
+function goP8(){
+  if(!S.ai_check2){alert('请选择一个选项');return;}
+  nav(8);
+}
+
+// ── Page 6: MC Q3 AI感知 ──────────────────────────────────────────────────────
+function bP6(){
+  buildOpts('mc3-opts', ['是，我注意到了 AI 系统的存在','我不确定是否有 AI 系统','否，我没有注意到 AI 系统'], v=>{ S.ai_check=v; });
+}
+
+
+// ── Page 7: MC Q4 AI目标 ──────────────────────────────────────────────────────
+function bP7(){
+  const AI_GOAL_OPTS = ['最大化合作视频总播放量','最大化签约KOL数量','最大化KOL粉丝总数','最大化视频发布频率'];
+  buildOpts('mc4-opts', shuffle(AI_GOAL_OPTS), v=>{ S.ai_check2=v; });
+}
+
+// ── Page 8: Self-interest survey ──────────────────────────────────────────────
+function bP8(){
+  const c = document.getElementById('survey-items');
+  if(c && c.children.length) return;
+  const lbls=['1\n完全不同意','2','3','4\n中立','5','6','7\n完全同意'];
+  let html='';
+  html += '<div class="sq-section">A. 您在工作中的一般偏好</div>';
+  SURVEY_SELF.forEach((item,idx)=>{
+    const rs=lbls.map((l,i)=>
+      '<label><input type="radio" name="s'+item.id+'" value="'+(i+1)+'" '+
+      (S.survey[item.id]===(i+1)?'checked':'')+
+      ' onchange="S.survey['+item.id+']='+(i+1)+'"><span class="lb">'+l+'</span></label>'
+    ).join('');
+    html+='<div class="sq"><div class="qt">'+(idx+1)+'. '+item.t+'</div><div class="lk">'+rs+'</div></div>';
+  });
+  html += '<div class="sq-section">B. AI 对比对您决策的影响</div>';
+  SURVEY_AI.forEach((item,idx)=>{
+    const rs=lbls.map((l,i)=>
+      '<label><input type="radio" name="s'+item.id+'" value="'+(i+1)+'" '+
+      (S.survey[item.id]===(i+1)?'checked':'')+
+      ' onchange="S.survey['+item.id+']='+(i+1)+'"><span class="lb">'+l+'</span></label>'
+    ).join('');
+    html+='<div class="sq"><div class="qt">'+(idx+5)+'. '+item.t+'</div><div class="lk">'+rs+'</div></div>';
+  });
+  c.innerHTML=html;
+}
+
+function goP9(){
+  const miss=SURVEY.filter(it=>!S.survey[it.id]);
+  if(miss.length){alert('请完成全部题目（还有 '+miss.length+' 题未作答）');return;}
+  nav(9);
+}
+
+// ── Page 9: Gaming slider ─────────────────────────────────────────────────────
+function bP9(){ /* slider renders statically */ }
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+function submitAll(){
+
+  const self_mean = parseFloat((SURVEY_SELF.map(it=>S.survey[it.id]).reduce((a,b)=>a+b,0)/SURVEY_SELF.length).toFixed(2));
+  const ai_mean   = parseFloat((SURVEY_AI.map(it=>S.survey[it.id]).reduce((a,b)=>a+b,0)/SURVEY_AI.length).toFixed(2));
+  const survey_mean = parseFloat(((self_mean*SURVEY_SELF.length + ai_mean*SURVEY_AI.length)/SURVEY.length).toFixed(2));
+  const manip_kpi_correct = S.manip_kpi === MANIP_SIGNING[0];
+  const manip_org_correct = S.manip_org === '最大化合作视频总播放量';
+
+  const result={
+    timestamp:new Date().toISOString(),
+    completion_code:S.completionCode,
+    group:GROUP,
+    metric:COND.metric,
+    ai_benchmark:COND.ai,
+    selected_ids:S.sel,
+    signed_count:null,
+    plays_sum:null,
+    gaming_slider:S.gaming_slider,
+    manip_kpi_answer:S.manip_kpi,
+    manip_kpi_correct,
+    manip_org_answer:S.manip_org,
+    manip_org_correct,
+    ai_perception:S.ai_check,
+    ai_goal_check:S.ai_check2,
+    ai_goal_correct:(S.ai_check2==='最大化合作视频总播放量'),
+    survey_scores:S.survey,
+    survey_self_mean:self_mean,
+    survey_ai_mean:ai_mean,
+    survey_mean,
+    reasons:S.reasons,
+  };
+
+  document.getElementById('done-code').textContent=S.completionCode;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p10').classList.add('active');
+  window.scrollTo(0,0);
+
+  const EP='https://script.google.com/macros/s/AKfycbxBxxGTYOBCkaMYgIXJKvxHfuUQh0v4vhfksMXPY4aL6G65LzzlU31Ls_BeHsAuwkO7Gg/exec';
+  fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(result),mode:'no-cors'}).catch(()=>{});
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+S.completionCode = genCode();
+</script>
+</body>
+</html>
